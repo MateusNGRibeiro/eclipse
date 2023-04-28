@@ -1,0 +1,47 @@
+import com.microsoft.azure.cognitiveservices.vision.faceapi.FaceAPI;
+import com.microsoft.azure.cognitiveservices.vision.faceapi.FaceAPIManager;
+import com.microsoft.azure.cognitiveservices.vision.faceapi.models.Emotion;
+import com.microsoft.azure.cognitiveservices.vision.faceapi.models.Face;
+import com.microsoft.azure.cognitiveservices.vision.faceapi.models.FaceAttributes;
+import com.microsoft.azure.cognitiveservices.vision.faceapi.models.FaceRectangle;
+import com.microsoft.azure.cognitiveservices.vision.faceapi.models.ImageUrl;
+import com.microsoft.azure.cognitiveservices.vision.faceapi.models.ModelResult;
+import java.util.List;
+
+public class Main {
+    private static final String SUBSCRIPTION_KEY = "<SUA_CHAVE_DE_ASSINATURA>";
+    private static final String ENDPOINT = "https://<SUA_REGIÃO>.api.cognitive.microsoft.com";
+
+    public static void main(String[] args) {
+        // Cria uma instância do cliente FaceAPI
+        FaceAPI faceAPI = FaceAPIManager.authenticate(SUBSCRIPTION_KEY).withEndpoint(ENDPOINT);
+
+        // URL da imagem a ser analisada
+        String imageUrl = "<URL_DA_IMAGEM>";
+
+        // Cria um objeto ImageUrl com a URL da imagem
+        ImageUrl image = new ImageUrl().withUrl(imageUrl);
+
+        // Chama o método detectWithUrl para detectar as faces na imagem
+        List<ModelResult<Face>> faces = faceAPI.face().detectWithUrl(true, false, null, null, image);
+
+        // Percorre a lista de faces detectadas
+        for (ModelResult<Face> faceResult : faces) {
+            // Recupera a face atual
+            Face face = faceResult.getModel();
+
+            // Recupera o retângulo da face na imagem
+            FaceRectangle faceRectangle = face.faceRectangle();
+
+            // Recupera os atributos da face (incluindo as emoções)
+            FaceAttributes attributes = face.faceAttributes();
+
+            // Recupera a emoção predominante na face
+            Emotion emotion = attributes.emotion().topEmotion();
+
+            // Imprime as informações da face na imagem
+            System.out.println("Face encontrada na posição (" + faceRectangle.left() + ", " + faceRectangle.top() + ")");
+            System.out.println("Emoção predominante: " + emotion.toString());
+        }
+    }
+}
